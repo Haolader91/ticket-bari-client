@@ -4,6 +4,10 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 First, run the development server:
 
+install
+
+1. react icon
+
 ```bash
 npm run dev
 # or
