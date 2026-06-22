@@ -1,26 +1,49 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
 import { FaBusAlt } from "react-icons/fa";
 import { FiChevronDown, FiLogOut, FiMenu, FiUser, FiX } from "react-icons/fi";
+import { useSession, signOut } from "@/lib/auth-client";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const pathname = usePathname();
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const router = useRouter();
+
+  const { data: session, isPending } = useSession();
+
+  const isLoggedIn = !!session;
+  const user = session?.user;
+
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const user = {
-    name: "ak haowlader",
-    role: "Passenger",
-    avatar:
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop",
-  };
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast.success("Logged out successfully! 👋");
+      setIsDropdownOpen(false);
+      setIsOpen(false);
+      router.push("/login");
+    } catch (error) {
+      toast.error("Failed to log out. Try again.");
+    }
+  };
+
+  const defaultAvatar =
+    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100";
+
   return (
     <nav className="sticky top-0 z-50 w-full bg-white border-b border-slate-100 backdrop-blur-md bg-opacity-95 shadow-sm">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -56,7 +79,8 @@ const Navbar = () => {
           >
             All Tickets
           </Link>
-          {isLoggedIn && (
+
+          {isMounted && isLoggedIn && (
             <Link
               href="/dashboard"
               className={`text-sm font-semibold transition-colors ${
@@ -72,7 +96,9 @@ const Navbar = () => {
 
         {/* login and user  */}
         <div className="hidden md:flex items-center gap-4">
-          {!isLoggedIn ? (
+          {!isMounted || isPending ? (
+            <div className="w-8 h-8 rounded-full bg-slate-100 animate-pulse" />
+          ) : !isLoggedIn ? (
             <div className="flex items-center gap-4">
               <Link
                 href="/login"
@@ -93,17 +119,18 @@ const Navbar = () => {
                 onClick={toggleDropdown}
                 className="flex items-center gap-3 p-1.5 pr-3 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-full transition-all focus:outline-none"
               >
-                <div className="relative w-8 h-8 rounded-full overflow-hidden border border-slate-200 shrink-0">
+                <div className="relative w-8 h-8 rounded-full overflow-hidden border border-slate-200 shrink-0 bg-slate-100">
                   <Image
-                    src={user.avatar}
+                    src={user?.image || defaultAvatar}
                     alt="user avatar"
                     fill
                     className="object-cover"
+                    unoptimized
                   />
                 </div>
                 <div className="text-left hidden lg:block">
-                  <p className="text-xs font-bold text-slate-800 leading-none">
-                    {user.name}
+                  <p className="text-xs font-bold text-slate-800 leading-none capitalize">
+                    {user?.name}
                   </p>
                 </div>
                 <FiChevronDown
@@ -111,9 +138,8 @@ const Navbar = () => {
                 />
               </button>
 
-              {/* ড্রপডাউন মেনু বক্স */}
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-3 w-52 bg-white border border-slate-100 rounded-2xl shadow-xl p-2 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 mt-3 w-52 bg-white border border-slate-100 rounded-2xl shadow-xl p-2">
                   <Link
                     href="/dashboard/profile"
                     onClick={() => setIsDropdownOpen(false)}
@@ -134,10 +160,7 @@ const Navbar = () => {
                   </Link>
                   <div className="h-[1px] bg-slate-100 my-1" />
                   <button
-                    onClick={() => {
-                      setIsDropdownOpen(false);
-                      setIsLoggedIn(false);
-                    }}
+                    onClick={handleLogout}
                     className="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-50 transition-all text-left"
                   >
                     <FiLogOut />
@@ -166,7 +189,7 @@ const Navbar = () => {
 
       {/* mobail menu  */}
       {isOpen && (
-        <div className="md:hidden bg-white border-b border-slate-100 px-6 py-6 space-y-4 animate-in fade-in duration-200">
+        <div className="md:hidden bg-white border-b border-slate-100 px-6 py-6 space-y-4">
           <div className="flex flex-col space-y-4">
             <Link
               href="/"
@@ -190,7 +213,7 @@ const Navbar = () => {
             >
               All Tickets
             </Link>
-            {isLoggedIn && (
+            {isMounted && isLoggedIn && (
               <Link
                 href="/dashboard"
                 onClick={toggleMenu}
@@ -207,8 +230,9 @@ const Navbar = () => {
 
           <div className="h-[1px] bg-slate-100 my-4" />
 
-          {/* মোবাইল ভিউ অথেনটিকেশন / প্রোফাইল অ্যাকশন */}
-          {!isLoggedIn ? (
+          {!isMounted || isPending ? (
+            <div className="w-full h-10 rounded-xl bg-slate-50 animate-pulse" />
+          ) : !isLoggedIn ? (
             <div className="flex flex-col gap-3">
               <Link
                 href="/login"
@@ -228,19 +252,22 @@ const Navbar = () => {
           ) : (
             <div className="space-y-4">
               <div className="flex items-center gap-3 px-1">
-                <div className="relative w-9 h-9 rounded-full overflow-hidden border border-slate-200">
+                <div className="relative w-9 h-9 rounded-full overflow-hidden border border-slate-200 bg-slate-100">
                   <Image
-                    src={user.avatar}
+                    src={user?.image || defaultAvatar}
                     alt="user avatar"
                     fill
                     className="object-cover"
+                    unoptimized
                   />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-800">
-                    {user.name}
+                  <p className="text-sm font-bold text-slate-800 capitalize">
+                    {user?.name}
                   </p>
-                  <p className="text-xs text-slate-500">{user.role}</p>
+                  <p className="text-xs text-slate-500 capitalize">
+                    {user?.role || "Passenger"}
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3 pt-2">
@@ -257,10 +284,7 @@ const Navbar = () => {
                   <span>Profile</span>
                 </Link>
                 <button
-                  onClick={() => {
-                    toggleMenu();
-                    setIsLoggedIn(false);
-                  }}
+                  onClick={handleLogout}
                   className="flex items-center justify-center gap-2 bg-rose-50 hover:bg-rose-100 text-rose-600 py-2.5 rounded-xl text-xs font-bold transition-all"
                 >
                   <FiLogOut />

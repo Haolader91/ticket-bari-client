@@ -4,9 +4,15 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 First, run the development server:
 
-install
+## my installation
 
 1. react icon
+2. npm install better-auth
+3. npm install mongodb
+4. npm install @better-auth/mongo-adapter
+5. npm i @heroui/styles @heroui/react
+6. npm install react-hook-form
+7. npm install react-hot-toast
 
 ```bash
 npm run dev
