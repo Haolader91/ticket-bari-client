@@ -8,9 +8,16 @@ import { FiChevronDown, FiLogOut, FiMenu, FiUser, FiX } from "react-icons/fi";
 
 const Navbar = () => {
   const pathname = usePathname();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const user = {
+    name: "ak haowlader",
+    role: "Passenger",
+    avatar:
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop",
+  };
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
@@ -88,7 +95,7 @@ const Navbar = () => {
               >
                 <div className="relative w-8 h-8 rounded-full overflow-hidden border border-slate-200 shrink-0">
                   <Image
-                    src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    src={user.avatar}
                     alt="user avatar"
                     fill
                     className="object-cover"
@@ -96,7 +103,7 @@ const Navbar = () => {
                 </div>
                 <div className="text-left hidden lg:block">
                   <p className="text-xs font-bold text-slate-800 leading-none">
-                    ak haowlader
+                    {user.name}
                   </p>
                 </div>
                 <FiChevronDown
@@ -156,6 +163,114 @@ const Navbar = () => {
           </button>
         </div>
       </div>
+
+      {/* mobail menu  */}
+      {isOpen && (
+        <div className="md:hidden bg-white border-b border-slate-100 px-6 py-6 space-y-4 animate-in fade-in duration-200">
+          <div className="flex flex-col space-y-4">
+            <Link
+              href="/"
+              onClick={toggleMenu}
+              className={`text-sm font-semibold transition-colors ${
+                pathname === "/"
+                  ? "text-[#6366F1]"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Home
+            </Link>
+            <Link
+              href="/all-tickets"
+              onClick={toggleMenu}
+              className={`text-sm font-semibold transition-colors ${
+                pathname.startsWith("/all-tickets")
+                  ? "text-[#6366F1]"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              All Tickets
+            </Link>
+            {isLoggedIn && (
+              <Link
+                href="/dashboard"
+                onClick={toggleMenu}
+                className={`text-sm font-semibold transition-colors ${
+                  pathname.startsWith("/dashboard")
+                    ? "text-[#6366F1]"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Dashboard
+              </Link>
+            )}
+          </div>
+
+          <div className="h-[1px] bg-slate-100 my-4" />
+
+          {/* মোবাইল ভিউ অথেনটিকেশন / প্রোফাইল অ্যাকশন */}
+          {!isLoggedIn ? (
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/login"
+                onClick={toggleMenu}
+                className="w-full text-center text-sm font-bold text-slate-600 hover:text-slate-900 py-2.5 transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                onClick={toggleMenu}
+                className="w-full text-center bg-[#6366F1] hover:bg-[#5558DD] text-white py-3 rounded-xl text-sm font-bold tracking-wide transition-all"
+              >
+                Register
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 px-1">
+                <div className="relative w-9 h-9 rounded-full overflow-hidden border border-slate-200">
+                  <Image
+                    src={user.avatar}
+                    alt="user avatar"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-800">
+                    {user.name}
+                  </p>
+                  <p className="text-xs text-slate-500">{user.role}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <Link
+                  href="/dashboard/profile"
+                  onClick={toggleMenu}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                    pathname.startsWith("/dashboard/profile")
+                      ? "bg-indigo-50 border-[#6366F1]/30 text-[#6366F1]"
+                      : "bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border-slate-200/60"
+                  }`}
+                >
+                  <FiUser className="text-[#6366F1]" />
+                  <span>Profile</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    toggleMenu();
+                    setIsLoggedIn(false);
+                  }}
+                  className="flex items-center justify-center gap-2 bg-rose-50 hover:bg-rose-100 text-rose-600 py-2.5 rounded-xl text-xs font-bold transition-all"
+                >
+                  <FiLogOut />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   );
 };
