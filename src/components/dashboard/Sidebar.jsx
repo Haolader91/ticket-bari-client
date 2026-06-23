@@ -7,11 +7,13 @@ import { useSession, signOut } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import {
   FaBusAlt,
-  FaThLarge,
+  FaUser,
   FaTicketAlt,
-  FaUsers,
-  FaRoute,
-  FaCog,
+  FaHistory,
+  FaPlusCircle,
+  FaListUl,
+  FaInbox,
+  FaChartPie,
   FaSignOutAlt,
   FaBars,
   FaTimes,
@@ -27,24 +29,42 @@ export default function Sidebar() {
   const { data: session, isPending } = useSession();
   const user = session?.user;
 
+  const role = user?.role?.toLowerCase() || "user";
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const defaultAvatar =
-    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100";
-
-  const menuItems = [
-    { name: "Overview", href: "/dashboard", icon: FaThLarge },
+  const userLinks = [
+    { name: "User Profile", href: "/dashboard", icon: FaUser },
     {
-      name: "Bookings",
-      href: "/dashboard/addTicket",
+      name: "My Booked Tickets",
+      href: "/dashboard/my-bookings",
       icon: FaTicketAlt,
     },
-    { name: "Routes & Buses", href: "/dashboard/routes", icon: FaRoute },
-    { name: "Users", href: "/dashboard/users", icon: FaUsers },
-    { name: "Settings", href: "/dashboard/settings", icon: FaCog },
+    {
+      name: "Transaction History",
+      href: "/dashboard/transactions",
+      icon: FaHistory,
+    },
   ];
+
+  const vendorLinks = [
+    { name: "Vendor Profile", href: "/dashboard", icon: FaUser },
+    { name: "Add Ticket", href: "/dashboard/add-ticket", icon: FaPlusCircle },
+    { name: "My Added Tickets", href: "/dashboard/my-tickets", icon: FaListUl },
+    {
+      name: "Requested Bookings",
+      href: "/dashboard/requested-bookings",
+      icon: FaInbox,
+    },
+    { name: "Revenue Overview", href: "/dashboard/revenue", icon: FaChartPie },
+  ];
+
+  const menuItems = role === "vendor" ? vendorLinks : userLinks;
+
+  const defaultAvatar =
+    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100";
 
   const handleLogout = async () => {
     const toastId = toast.loading("Logging out...");
@@ -61,12 +81,14 @@ export default function Sidebar() {
   return (
     <>
       <div className="lg:hidden w-full bg-[#1e2538] text-white p-4 flex justify-between items-center fixed top-0 left-0 z-50 shadow-md">
-        <div className="flex items-center gap-2">
-          <FaBusAlt className="text-[#6366F1] text-xl" />
-          <span className="font-extrabold tracking-tight text-sm">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="p-2 bg-[#6366F1]/10 rounded-xl border border-[#6366F1]/20 group-hover:bg-[#6366F1]/20 transition-all">
+            <FaBusAlt className="text-[#6366F1] text-xl" />
+          </div>
+          <span className="text-xl font-extrabold text-white tracking-tight font-sans">
             Ticket<span className="text-[#6366F1]">-Bari</span>
           </span>
-        </div>
+        </Link>
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="text-white focus:outline-none p-1 hover:bg-slate-800 rounded-lg transition-colors"
@@ -80,14 +102,14 @@ export default function Sidebar() {
         lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:static lg:h-screen pt-16 lg:pt-0`}
       >
         <div className="px-4 py-6">
-          <div className="hidden lg:flex items-center gap-3 px-3 pb-8 border-b border-slate-800">
-            <div className="p-2.5 bg-[#6366F1]/10 rounded-xl border border-[#6366F1]/20">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="p-2 bg-[#6366F1]/10 rounded-xl border border-[#6366F1]/20 group-hover:bg-[#6366F1]/20 transition-all">
               <FaBusAlt className="text-[#6366F1] text-xl" />
             </div>
-            <span className="text-xl font-extrabold tracking-tight text-white">
+            <span className="text-xl font-extrabold text-slate-900 tracking-tight font-sans">
               Ticket<span className="text-[#6366F1]">-Bari</span>
             </span>
-          </div>
+          </Link>
 
           <nav className="mt-6 space-y-1.5">
             {menuItems.map((item) => {
@@ -144,8 +166,9 @@ export default function Sidebar() {
                 <p className="text-sm font-bold text-white truncate capitalize">
                   {user?.name || "Guest User"}
                 </p>
-                <p className="text-xs text-slate-500 truncate">
-                  {user?.email || "No Email"}
+
+                <p className="text-xs text-amber-400 font-semibold uppercase tracking-wider truncate">
+                  {role}
                 </p>
               </div>
             </div>
