@@ -1,65 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FaMapMarkerAlt, FaCalendarAlt, FaBus } from "react-icons/fa";
 
-const DEMO_TICKETS = [
-  {
-    _id: "t1",
-    title: "Hanif Enterprise - Scania Multi-Axle",
-    from: "Dhaka",
-    to: "Cox's Bazar",
-    transportType: "AC Sleeper",
-    price: 1200,
-    quantity: 12,
-    perks: ["WiFi", "Water Bottle", "Blanket"],
-    departureDateTime: "2026-07-15T22:30:00",
-    image:
-      "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=600",
-    status: "approved",
-  },
-  {
-    _id: "t2",
-    title: "Green Line Paribahan - Volvo Sleeper",
-    from: "Dhaka",
-    to: "Sylhet",
-    transportType: "AC Sleeper",
-    price: 1500,
-    quantity: 0,
-    perks: ["Snacks", "WiFi", "Premium Seats"],
-    departureDateTime: "2026-06-30T08:15:00",
-    image:
-      "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?q=80&w=600",
-    status: "approved",
-  },
-  {
-    _id: "t3",
-    title: "Ena Transport - Hyundai Universe",
-    from: "Chittagong",
-    to: "Dhaka",
-    transportType: "Non-AC Business",
-    price: 800,
-    quantity: 24,
-    perks: ["Water Bottle"],
-    departureDateTime: "2026-07-20T14:00:00",
-    image:
-      "https://images.unsplash.com/photo-1562620644-65db4039121b?q=80&w=600",
-    status: "approved",
-  },
-];
-
 export default function AllTicketsPage() {
-  const [tickets] = useState(DEMO_TICKETS);
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/api/tickets")
+      .then((res) => res.json())
+      .then((resData) => {
+        if (resData.success) {
+          setTickets(resData.data);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching tickets:", err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="text-center py-12 font-bold text-slate-400">
+        Loading approved tickets...
+      </div>
+    );
+  }
+
+  if (tickets.length === 0) {
+    return (
+      <div className="text-center py-12 font-bold text-slate-400">
+        No approved tickets available right now.
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-black text-slate-800 tracking-tight">
-          Available Tickets (Demo)
+          Available Tickets
         </h1>
         <p className="text-sm text-slate-400 font-medium mt-1">
-          Explore our UI layout with template data
+          Explore real-time tickets approved by Admin
         </p>
       </div>
 
@@ -77,7 +64,7 @@ export default function AllTicketsPage() {
                   className="object-cover w-full h-full"
                 />
                 <span className="absolute top-4 left-4 px-2.5 py-1 text-[10px] font-extrabold bg-indigo-50 text-indigo-600 rounded-lg uppercase tracking-wider border border-indigo-100 flex items-center gap-1">
-                  <FaBus /> {ticket.transportType}
+                  <FaBus /> {ticket.transportType || "AC/Non-AC"}
                 </span>
               </div>
 
@@ -108,7 +95,7 @@ export default function AllTicketsPage() {
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-1.5">
-                  {ticket.perks.map((perk, index) => (
+                  {ticket.perks?.map((perk, index) => (
                     <span
                       key={index}
                       className="text-[10px] bg-slate-50 text-slate-500 px-2 py-0.5 rounded-md font-medium border border-slate-100"

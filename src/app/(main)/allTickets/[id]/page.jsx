@@ -11,48 +11,6 @@ import {
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 
-const MOCK_TICKETS_DATABASE = {
-  t1: {
-    _id: "t1",
-    title: "Hanif Enterprise - Scania Multi-Axle",
-    from: "Dhaka",
-    to: "Cox's Bazar",
-    transportType: "AC Sleeper",
-    price: 1200,
-    quantity: 12,
-    perks: ["WiFi", "Water Bottle", "Blanket", "USB Charger"],
-    departureDateTime: "2026-07-15T22:30:00",
-    image:
-      "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=600",
-  },
-  t2: {
-    _id: "t2",
-    title: "Green Line Paribahan - Volvo Sleeper",
-    from: "Dhaka",
-    to: "Sylhet",
-    transportType: "AC Sleeper",
-    price: 1500,
-    quantity: 0,
-    perks: ["Snacks", "WiFi", "Premium Seats", "Reading Light"],
-    departureDateTime: "2026-06-30T08:15:00",
-    image:
-      "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?q=80&w=600",
-  },
-  t3: {
-    _id: "t3",
-    title: "Ena Transport - Hyundai Universe",
-    from: "Chittagong",
-    to: "Dhaka",
-    transportType: "Non-AC Business",
-    price: 800,
-    quantity: 24,
-    perks: ["Water Bottle", "Movie Screen"],
-    departureDateTime: "2026-07-20T14:00:00",
-    image:
-      "https://images.unsplash.com/photo-1562620644-65db4039121b?q=80&w=600",
-  },
-};
-
 function DetailsCountdown({ departureDate }) {
   const [timeLeft, setTimeLeft] = useState("");
 
@@ -101,23 +59,42 @@ export default function TicketDetailsPage() {
   const router = useRouter();
 
   const [ticket, setTicket] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingQty, setBookingQty] = useState(1);
 
   useEffect(() => {
-    if (id && MOCK_TICKETS_DATABASE[id]) {
-      setTicket(MOCK_TICKETS_DATABASE[id]);
-    } else {
-      setTicket(MOCK_TICKETS_DATABASE["t1"]);
+    if (id) {
+      fetch(`http://localhost:8080/api/tickets/${id}`)
+        .then((res) => res.json())
+        .then((resData) => {
+          if (resData.success) {
+            setTicket(resData.data);
+          }
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error fetching details:", err);
+          setLoading(false);
+        });
     }
   }, [id]);
 
-  if (!ticket)
+  if (loading) {
     return (
       <div className="text-center py-12 font-bold text-slate-400">
-        Loading dynamic view...
+        Loading ticket details...
       </div>
     );
+  }
+
+  if (!ticket) {
+    return (
+      <div className="text-center py-12 font-bold text-rose-400">
+        Ticket not found!
+      </div>
+    );
+  }
 
   const isExpired = new Date(ticket.departureDateTime) < new Date();
   const isSoldOut = ticket.quantity <= 0;
@@ -157,7 +134,7 @@ export default function TicketDetailsPage() {
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <DetailsCountdown departureDate={ticket.departureDateTime} />
             <span className="bg-slate-100 text-slate-800 text-xs font-extrabold px-3 py-1.5 rounded-xl uppercase">
-              {ticket.transportType}
+              {ticket.transportType || "AC/Non-AC"}
             </span>
           </div>
 
@@ -198,21 +175,23 @@ export default function TicketDetailsPage() {
             </div>
           </div>
 
-          <div className="mt-6">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-              Included Perks
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {ticket.perks.map((perk, i) => (
-                <span
-                  key={i}
-                  className="bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 rounded-xl text-xs font-bold"
-                >
-                  ✓ {perk}
-                </span>
-              ))}
+          {ticket.perks && ticket.perks.length > 0 && (
+            <div className="mt-6">
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                Included Perks
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {ticket.perks.map((perk, i) => (
+                  <span
+                    key={i}
+                    className="bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 rounded-xl text-xs font-bold"
+                  >
+                    ✓ {perk}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
             <div>
