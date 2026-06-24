@@ -70,9 +70,9 @@ const Navbar = () => {
             Home
           </Link>
           <Link
-            href="/all-tickets"
+            href="/allTickets"
             className={`text-sm font-semibold transition-colors ${
-              pathname.startsWith("/all-tickets")
+              pathname.startsWith("/allTickets")
                 ? "text-[#6366F1]"
                 : "text-slate-600 hover:text-slate-900"
             }`}
