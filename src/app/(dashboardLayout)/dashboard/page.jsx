@@ -24,7 +24,6 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-      {/* ১. টপ কভার ব্যানার সেকশন */}
       <div className="relative h-48 w-full bg-slate-900">
         <Image
           src={defaultBanner}
@@ -35,9 +34,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* ২. ইউজার ইনফো ও প্রোফাইল কার্ড সেকশন */}
       <div className="relative px-6 pb-8 text-center flex flex-col items-center">
-        {/* প্রোফাইল ইমেজ */}
         <div className="relative w-28 h-28 -mt-14 border-4 border-white rounded-full overflow-hidden shadow-lg bg-slate-200">
           <Image
             src={user?.image || defaultAvatar}
@@ -47,23 +44,16 @@ export default function DashboardPage() {
             className="object-cover"
           />
         </div>
-
-        {/* 👑 মঙ্গোডিবি ডাটাবেজ থেকে আসা আসল রোল (Role) */}
-        {/* ইউজার সাইনআপের সময় যে রোল দিয়েছে (admin, vendor, etc.), সেটিই এখানে ডাইনামিকালি রেন্ডার হবে */}
         <span className="mt-4 px-4 py-1 text-xs font-extrabold tracking-wide uppercase bg-amber-500 text-white rounded-full shadow-sm capitalize">
           {user?.role || "No Role Found"}
         </span>
-
-        {/* নাম এবং ইমেইল */}
         <h2 className="mt-3 text-2xl font-black text-slate-800 tracking-tight capitalize">
           {user?.name || "Unknown User"}
         </h2>
-
         <p className="mt-1 text-sm font-medium text-slate-400">
           {user?.email || "No Email"}
         </p>
 
-        {/* ৩. এডিট প্রোফাইল বাটন */}
         <button className="mt-6 px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-emerald-400 to-cyan-500 hover:from-emerald-500 hover:to-cyan-600 rounded-xl transition-all duration-300 shadow-md shadow-cyan-500/10 transform hover:-translate-y-0.5">
           Edit Profile
         </button>

@@ -153,8 +153,8 @@ export default function Footer() {
 
       <div className="max-w-7xl mx-auto px-6 border-t border-gray-100 mt-12 pt-8 text-center text-gray-400 text-xs">
         <p>
-          &copy; {new Date().getFullYear()} Ticketo Inc. All rights reserved.
-          Developed by Antigravity AI.
+          &copy; {new Date().getFullYear()} Ticket-Bari Inc. All rights
+          reserved. Developed by Antigravity AI.
         </p>
       </div>
     </footer>

@@ -17,6 +17,8 @@ import {
   FaSignOutAlt,
   FaBars,
   FaTimes,
+  FaUserShield,
+  FaUsers,
 } from "react-icons/fa";
 import Image from "next/image";
 
@@ -39,29 +41,61 @@ export default function Sidebar() {
     { name: "User Profile", href: "/dashboard", icon: FaUser },
     {
       name: "My Booked Tickets",
-      href: "/dashboard/my-bookings",
+      href: "/dashboard/user/my-bookings",
       icon: FaTicketAlt,
     },
     {
       name: "Transaction History",
-      href: "/dashboard/transactions",
+      href: "/dashboard/user/transactions",
       icon: FaHistory,
     },
   ];
 
   const vendorLinks = [
     { name: "Vendor Profile", href: "/dashboard", icon: FaUser },
-    { name: "Add Ticket", href: "/dashboard/add-ticket", icon: FaPlusCircle },
-    { name: "My Added Tickets", href: "/dashboard/my-tickets", icon: FaListUl },
+    {
+      name: "Add Ticket",
+      href: "/dashboard/vendor/add-ticket",
+      icon: FaPlusCircle,
+    },
+    {
+      name: "My Added Tickets",
+      href: "/dashboard/vendor/my-tickets",
+      icon: FaListUl,
+    },
     {
       name: "Requested Bookings",
-      href: "/dashboard/requested-bookings",
+      href: "/dashboard/vendor/requested-bookings",
       icon: FaInbox,
     },
-    { name: "Revenue Overview", href: "/dashboard/revenue", icon: FaChartPie },
+    {
+      name: "Revenue Overview",
+      href: "/dashboard/vendor/revenue",
+      icon: FaChartPie,
+    },
   ];
 
-  const menuItems = role === "vendor" ? vendorLinks : userLinks;
+  const adminLinks = [
+    { name: "Admin Profile", href: "/dashboard", icon: FaUserShield },
+    {
+      name: "Manage Tickets",
+      href: "/dashboard/admin/manage-tickets",
+      icon: FaListUl,
+    },
+    {
+      name: "Manage Users",
+      href: "/dashboard/admin/manage-users",
+      icon: FaUsers,
+    },
+    {
+      name: "Advertise Tickets",
+      href: "/dashboard/admin/advertise-tickets",
+      icon: FaChartPie,
+    },
+  ];
+
+  const menuItems =
+    role === "admin" ? adminLinks : role === "vendor" ? vendorLinks : userLinks;
 
   const defaultAvatar =
     "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100";
@@ -102,11 +136,14 @@ export default function Sidebar() {
         lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:static lg:h-screen pt-16 lg:pt-0`}
       >
         <div className="px-4 py-6">
-          <Link href="/" className="flex items-center gap-2.5 group">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 group px-3 pb-6 border-b border-slate-800"
+          >
             <div className="p-2 bg-[#6366F1]/10 rounded-xl border border-[#6366F1]/20 group-hover:bg-[#6366F1]/20 transition-all">
               <FaBusAlt className="text-[#6366F1] text-xl" />
             </div>
-            <span className="text-xl font-extrabold text-slate-900 tracking-tight font-sans">
+            <span className="text-xl font-extrabold text-white tracking-tight font-sans">
               Ticket<span className="text-[#6366F1]">-Bari</span>
             </span>
           </Link>
@@ -167,7 +204,9 @@ export default function Sidebar() {
                   {user?.name || "Guest User"}
                 </p>
 
-                <p className="text-xs text-amber-400 font-semibold uppercase tracking-wider truncate">
+                <p
+                  className={`text-xs font-semibold uppercase tracking-wider truncate ${role === "admin" ? "text-rose-400" : "text-amber-400"}`}
+                >
                   {role}
                 </p>
               </div>

@@ -227,6 +227,8 @@ export default function RegisterPage() {
               >
                 <option value="user">User (Passenger)</option>
                 <option value="vendor">Vendor (Transport Provider)</option>
+
+                <option value="admin">Admin (System Control)</option>
               </select>
             </div>
             {errors.role && (
