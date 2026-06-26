@@ -4,11 +4,9 @@ import { FaTicketAlt, FaCheck, FaTimes, FaBus, FaUser } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 export default function ManageTickets() {
-  // Comment: Database theke load haoya ticket songrokkhon er state
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Comment: Page load haoyar sathe sathe database theke sob ticket niye ashar effect
   useEffect(() => {
     fetch("http://localhost:8080/api/admin/tickets")
       .then((res) => res.json())
@@ -23,7 +21,6 @@ export default function ManageTickets() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Comment: Admin Approve ba Reject button-e click korle status update korar function
   const handleUpdateStatus = async (
     id,
     currentStatus,
@@ -33,11 +30,10 @@ export default function ManageTickets() {
     if (currentStatus === newStatus) return;
 
     try {
-      // 💡 এখানে মেথড POST এবং URL-এও POST রিকোয়েস্ট যাবে
       const res = await fetch(
         `http://localhost:8080/api/admin/tickets/${id}/status`,
         {
-          method: "POST", // Changed from PATCH to POST
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },

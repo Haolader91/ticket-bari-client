@@ -9,7 +9,7 @@ import {
   FaArrowLeft,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
-import { useSession } from "@/lib/auth-client"; // ✅ আপনার প্রজেক্টের সঠিক ক্লায়েন্ট পাথ ব্যবহার করা হলো
+import { useSession } from "@/lib/auth-client";
 
 function DetailsCountdown({ departureDate }) {
   const [timeLeft, setTimeLeft] = useState("");
@@ -59,7 +59,6 @@ export default function TicketDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
 
-  // ✅ আপনার অন্য পেজের মতো হুবহু 'isPending' স্ট্রাকচার ব্যবহার করা হলো
   const { data: session, isPending } = useSession();
 
   const [ticket, setTicket] = useState(null);
@@ -85,7 +84,6 @@ export default function TicketDetailsPage() {
     }
   }, [id]);
 
-  // ✅ ডেটা লোডিং অথবা অথেন্টিকেশন চেক পেন্ডিং থাকলে লোডিং স্ক্রিন দেখাবে
   if (isPending || loading) {
     return (
       <div className="text-center py-12 font-bold text-slate-400">
@@ -110,7 +108,6 @@ export default function TicketDetailsPage() {
     e.preventDefault();
     const qty = parseInt(bookingQty) || 0;
 
-    // ✅ সেফটি চেক: ইউজার বা ইমেইল না থাকলে বুকিং রিকোয়েস্ট ব্লক করবে
     if (!session?.user?.email) {
       toast.error("Please login to book a ticket!");
       return;
@@ -142,8 +139,7 @@ export default function TicketDetailsPage() {
         toast.success(`Successfully Booked ${qty} Tickets!`);
         setIsModalOpen(false);
 
-        // বুকিং শেষে সরাসরি ইউজার ড্যাশবোর্ডে রিডাইরেক্ট
-        router.push("/dashboard/user/MyBookedTickets");
+        router.push("/dashboard/user/my-bookings");
       } else {
         toast.error(resData.error || "Booking failed.");
       }

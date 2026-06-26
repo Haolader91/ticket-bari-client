@@ -3,11 +3,8 @@ import React from "react";
 
 const Testimonials = () => {
   return (
-    // ১. এই মেইন কন্টেইনারটি w-full এবং bg-white থাকবে, যাতে স্ক্রিনের দুই পাশের কালো অংশ পুরোপুরি চলে যায় এবং সাদা হয়ে যায়।
     <section className="w-full bg-white py-24">
-      {/* ২. ভেতরের কন্টেন্টগুলোকে max-w-7xl mx-auto দিয়ে মাঝখানে সুন্দরভাবে সাজানো হয়েছে */}
       <div className="max-w-7xl mx-auto px-6">
-        {/* সেকশন হেডার */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-slate-900 md:text-4xl font-sans">
             Client Testimonials
@@ -18,9 +15,7 @@ const Testimonials = () => {
           </p>
         </div>
 
-        {/* কার্ডস গ্রিড */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* প্রথম কার্ড */}
           <div className="bg-[#090e1a] border border-white/5 hover:border-[#6366F1]/50 transition-all duration-300 p-8 rounded-2xl space-y-6 relative hover:-translate-y-1 shadow-2xl shadow-slate-950/20">
             <p className="text-slate-300 italic text-md leading-relaxed">
               "Creating events with Ticketo has completely transformed how our
@@ -45,7 +40,6 @@ const Testimonials = () => {
             </div>
           </div>
 
-          {/* দ্বিতীয় কার্ড */}
           <div className="bg-[#090e1a] border border-white/5 hover:border-[#6366F1]/50 transition-all duration-300 p-8 rounded-2xl space-y-6 relative hover:-translate-y-1 shadow-2xl shadow-slate-950/20">
             <p className="text-slate-300 italic text-md leading-relaxed">
               "As an attendee, I appreciate the modern, clean interface.

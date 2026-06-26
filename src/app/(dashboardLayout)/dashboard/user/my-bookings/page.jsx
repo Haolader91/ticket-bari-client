@@ -11,12 +11,10 @@ import {
 import toast from "react-hot-toast";
 import { useSession } from "@/lib/auth-client";
 
-// ১. একদম সহজ কাউন্টডাউন টাইমার কম্পোনেন্ট
 function CountdownTimer({ departureDate, status }) {
   const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
-    // টিকিট পেইড বা রিজেক্টেড হলে টাইমার দেখানোর দরকার নেই
     if (status === "rejected" || status === "paid") {
       setTimeLeft("");
       return;
@@ -53,7 +51,6 @@ function CountdownTimer({ departureDate, status }) {
   );
 }
 
-// ২. মেইন পেজ কম্পোনেন্ট
 export default function MyBookedTickets() {
   const { data: session, isPending } = useSession();
   const [bookings, setBookings] = useState([]);
@@ -128,7 +125,6 @@ export default function MyBookedTickets() {
             const isExpired =
               new Date(ticket.departureDate).getTime() < new Date().getTime();
 
-            // স্ট্যাটাস কালার কনফিগ
             const statusStyles =
               {
                 pending: "bg-amber-100 text-amber-700 border-amber-200",
@@ -150,7 +146,7 @@ export default function MyBookedTickets() {
                       alt="Ticket Image"
                       fill
                       className="object-cover"
-                      unoptimized // 💡 এরর এড়াতে Next.js-এর অপটিমাইজেশন অফ করে দেওয়া হলো (খুবই সহজ ট্রিক!)
+                      unoptimized
                     />
                     <span
                       className={`absolute top-4 right-4 px-3 py-1 text-xs font-extrabold rounded-xl border uppercase ${statusStyles}`}
@@ -173,7 +169,7 @@ export default function MyBookedTickets() {
 
                     <div className="mt-2.5 flex items-center gap-2 text-xs font-semibold text-slate-400">
                       <FaCalendarAlt />
-                      {/* সহজ উপায়ে ডেট রিডঅ্যাবল করা */}
+
                       <span>
                         {ticket.departureDate
                           ? new Date(ticket.departureDate).toLocaleString()
@@ -203,17 +199,15 @@ export default function MyBookedTickets() {
                 </div>
 
                 <div className="px-5 pb-5 pt-2 border-t border-slate-50 bg-slate-50/30 flex flex-wrap items-center justify-between gap-3 min-h-[60px]">
-                  {/* লাইভ কাউন্টডাউন কম্পোনেন্ট */}
                   <CountdownTimer
                     departureDate={ticket.departureDate}
                     status={ticket.status}
                   />
 
-                  {/* রিকোয়ারমেন্ট অনুযায়ী বাটন রেন্ডারিং */}
                   {ticket.status === "accepted" && (
                     <button
                       onClick={() => handlePayment(ticket._id)}
-                      disabled={isExpired} // টাইম পার হয়ে গেলে বাটন ডিসেবল হবে (রিকোয়ারমেন্ট শর্ত)
+                      disabled={isExpired}
                       className={`flex-1 text-center text-white text-sm font-black py-2.5 px-4 rounded-xl shadow-md transition-all ${
                         isExpired
                           ? "bg-slate-300 cursor-not-allowed shadow-none"

@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FaMapMarkerAlt, FaCalendarAlt, FaBus } from "react-icons/fa";
-import { useSession } from "@/lib/auth-client"; // ✅ Better-Auth এর সেফ লোডিং হ্যান্ডলিং এর জন্য
+import { useSession } from "@/lib/auth-client";
 
 export default function AllTicketsPage() {
-  const { isPending: isAuthPending } = useSession(); // ✅ Auth চেকিং স্টেট ব্যাকগ্রাউন্ডে সেফলি হ্যান্ডেল করার জন্য
+  const { isPending: isAuthPending } = useSession();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +25,6 @@ export default function AllTicketsPage() {
       });
   }, []);
 
-  // ✅ এপিআই ডাটা অথবা অথেন্টিকেশন স্টেট পেন্ডিং থাকলে সেফ লোডিং স্ক্রিন দেখাবে
   if (loading || isAuthPending) {
     return (
       <div className="text-center py-12 font-bold text-slate-400">
