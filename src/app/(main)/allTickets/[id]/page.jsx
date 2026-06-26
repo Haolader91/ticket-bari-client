@@ -6,17 +6,18 @@ import {
   FaMapMarkerAlt,
   FaCalendarAlt,
   FaClock,
-  FaBus,
   FaArrowLeft,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { useSession } from "@/lib/auth-client"; // ✅ আপনার প্রজেক্টের সঠিক ক্লায়েন্ট পাথ ব্যবহার করা হলো
 
 function DetailsCountdown({ departureDate }) {
   const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
     const calculateTime = () => {
-      const difference = new Date(departureDate) - new Date();
+      const difference =
+        new Date(departureDate).getTime() - new Date().getTime();
       if (difference <= 0) {
         setTimeLeft("Expired");
         return;
@@ -58,10 +59,14 @@ export default function TicketDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
 
+  // ✅ আপনার অন্য পেজের মতো হুবহু 'isPending' স্ট্রাকচার ব্যবহার করা হলো
+  const { data: session, isPending } = useSession();
+
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingQty, setBookingQty] = useState(1);
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -80,7 +85,8 @@ export default function TicketDetailsPage() {
     }
   }, [id]);
 
-  if (loading) {
+  // ✅ ডেটা লোডিং অথবা অথেন্টিকেশন চেক পেন্ডিং থাকলে লোডিং স্ক্রিন দেখাবে
+  if (isPending || loading) {
     return (
       <div className="text-center py-12 font-bold text-slate-400">
         Loading ticket details...
@@ -100,16 +106,53 @@ export default function TicketDetailsPage() {
   const isSoldOut = ticket.quantity <= 0;
   const isBookButtonDisabled = isExpired || isSoldOut;
 
-  const handleBookingSubmit = (e) => {
+  const handleBookingSubmit = async (e) => {
     e.preventDefault();
-    if (Number(bookingQty) > ticket.quantity) {
+    const qty = parseInt(bookingQty) || 0;
+
+    // ✅ সেফটি চেক: ইউজার বা ইমেইল না থাকলে বুকিং রিকোয়েস্ট ব্লক করবে
+    if (!session?.user?.email) {
+      toast.error("Please login to book a ticket!");
+      return;
+    }
+
+    if (qty > ticket.quantity) {
       toast.error(`You cannot book more than ${ticket.quantity} tickets!`);
       return;
     }
-    toast.success(
-      `Successfully Booked ${bookingQty} Tickets! Saved as 'Pending'.`,
-    );
-    setIsModalOpen(false);
+
+    setBookingLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:8080/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ticketId: ticket._id,
+          userEmail: session.user.email,
+          user: session.user.name || "Anonymous User",
+          bookingQuantity: qty,
+          totalPrice: ticket.price * qty,
+        }),
+      });
+
+      const resData = await response.json();
+
+      if (resData.success) {
+        toast.success(`Successfully Booked ${qty} Tickets!`);
+        setIsModalOpen(false);
+
+        // বুকিং শেষে সরাসরি ইউজার ড্যাশবোর্ডে রিডাইরেক্ট
+        router.push("/dashboard/user/MyBookedTickets");
+      } else {
+        toast.error(resData.error || "Booking failed.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error, reservation failed.");
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   return (
@@ -175,24 +218,6 @@ export default function TicketDetailsPage() {
             </div>
           </div>
 
-          {ticket.perks && ticket.perks.length > 0 && (
-            <div className="mt-6">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                Included Perks
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {ticket.perks.map((perk, i) => (
-                  <span
-                    key={i}
-                    className="bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 rounded-xl text-xs font-bold"
-                  >
-                    ✓ {perk}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase">
@@ -208,7 +233,7 @@ export default function TicketDetailsPage() {
 
             <button
               onClick={() => setIsModalOpen(true)}
-              disabled={isBookButtonDisabled}
+              disabled={isBookButtonDisabled || bookingLoading}
               className={`px-8 py-4 rounded-2xl text-sm font-black shadow-lg transition-all duration-200 ${
                 isBookButtonDisabled
                   ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
@@ -256,15 +281,17 @@ export default function TicketDetailsPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
+                  disabled={bookingLoading}
                   className="flex-1 py-3 border border-slate-200 text-slate-500 rounded-xl text-xs font-bold hover:bg-slate-50 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition-all"
+                  disabled={bookingLoading}
+                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition-all disabled:bg-indigo-400"
                 >
-                  Confirm Booking
+                  {bookingLoading ? "Booking..." : "Confirm Booking"}
                 </button>
               </div>
             </form>
