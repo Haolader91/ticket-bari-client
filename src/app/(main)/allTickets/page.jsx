@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FaMapMarkerAlt, FaCalendarAlt, FaBus } from "react-icons/fa";
+import { useSession } from "@/lib/auth-client"; // ✅ Better-Auth এর সেফ লোডিং হ্যান্ডলিং এর জন্য
 
 export default function AllTicketsPage() {
+  const { isPending: isAuthPending } = useSession(); // ✅ Auth চেকিং স্টেট ব্যাকগ্রাউন্ডে সেফলি হ্যান্ডেল করার জন্য
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,7 +25,8 @@ export default function AllTicketsPage() {
       });
   }, []);
 
-  if (loading) {
+  // ✅ এপিআই ডাটা অথবা অথেন্টিকেশন স্টেট পেন্ডিং থাকলে সেফ লোডিং স্ক্রিন দেখাবে
+  if (loading || isAuthPending) {
     return (
       <div className="text-center py-12 font-bold text-slate-400">
         Loading approved tickets...
@@ -58,11 +61,13 @@ export default function AllTicketsPage() {
           >
             <div>
               <div className="relative h-48 w-full bg-slate-100">
-                <img
-                  src={ticket.image}
-                  alt={ticket.title}
-                  className="object-cover w-full h-full"
-                />
+                {ticket.image && (
+                  <img
+                    src={ticket.image}
+                    alt={ticket.title}
+                    className="object-cover w-full h-full"
+                  />
+                )}
                 <span className="absolute top-4 left-4 px-2.5 py-1 text-[10px] font-extrabold bg-indigo-50 text-indigo-600 rounded-lg uppercase tracking-wider border border-indigo-100 flex items-center gap-1">
                   <FaBus /> {ticket.transportType || "AC/Non-AC"}
                 </span>
