@@ -55,6 +55,7 @@ export default function MyBookedTickets() {
   const { data: session, isPending } = useSession();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
 
   const fetchUserBookings = useCallback((email) => {
     if (!email) return;
@@ -77,8 +78,74 @@ export default function MyBookedTickets() {
     }
   }, [isPending, session, fetchUserBookings]);
 
-  const handlePayment = (bookingId) => {
-    toast.loading("Redirecting to Stripe Payment Gateway...");
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const paymentStatus = query.get("payment");
+    const bookingId = query.get("bookingId");
+
+    if (paymentStatus === "success" && bookingId && session?.user?.email) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      fetch(`http://localhost:8080/api/bookings/${bookingId}/pay-success`, {
+        method: "PATCH",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            toast.success("Payment successful! Your ticket is confirmed.");
+
+            fetchUserBookings(session.user.email);
+          } else {
+            toast.error(data.error || "Something went wrong updating status.");
+          }
+        })
+        .catch((err) => {
+          console.error("Payment status update error:", err);
+        });
+    } else if (paymentStatus === "cancel") {
+      toast.error("Payment cancelled. You can try again anytime.");
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [session?.user?.email, fetchUserBookings]);
+
+  const handlePayment = async (bookingId) => {
+    setPaymentProcessing(true);
+
+    const toastId = toast.loading("Redirecting to Stripe Payment Gateway...");
+
+    try {
+      const response = await fetch(
+        "http://localhost:8080/api/create-checkout-session",
+
+        {
+          method: "POST",
+
+          headers: { "Content-Type": "application/json" },
+
+          body: JSON.stringify({ bookingId }),
+        },
+      );
+
+      const resData = await response.json();
+
+      if (resData.success && resData.stripeUrl) {
+        toast.dismiss(toastId);
+
+        window.location.href = resData.stripeUrl;
+      } else {
+        toast.error(resData.error || "Failed to initiate payment.", {
+          id: toastId,
+        });
+
+        setPaymentProcessing(false);
+      }
+    } catch (err) {
+      console.error(err);
+
+      toast.error("Network error, please try again.", { id: toastId });
+
+      setPaymentProcessing(false);
+    }
   };
 
   if (isPending || loading) {
@@ -207,7 +274,7 @@ export default function MyBookedTickets() {
                   {ticket.status === "accepted" && (
                     <button
                       onClick={() => handlePayment(ticket._id)}
-                      disabled={isExpired}
+                      disabled={isExpired || paymentProcessing}
                       className={`flex-1 text-center text-white text-sm font-black py-2.5 px-4 rounded-xl shadow-md transition-all ${
                         isExpired
                           ? "bg-slate-300 cursor-not-allowed shadow-none"
