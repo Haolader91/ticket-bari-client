@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useSession } from "@/lib/auth-client";
+import { Card } from "@heroui/react";
 
 function DetailsCountdown({ departureDate }) {
   const [timeLeft, setTimeLeft] = useState("");
@@ -227,17 +228,27 @@ export default function TicketDetailsPage() {
               </p>
             </div>
 
-            <button
-              onClick={() => setIsModalOpen(true)}
-              disabled={isBookButtonDisabled || bookingLoading}
-              className={`px-8 py-4 rounded-2xl text-sm font-black shadow-lg transition-all duration-200 ${
-                isBookButtonDisabled
-                  ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
-                  : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20 hover:-translate-y-0.5"
-              }`}
-            >
-              {isExpired ? "Trip Expired" : isSoldOut ? "Sold Out" : "Book Now"}
-            </button>
+            {session.user.role == "user" ? (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                disabled={isBookButtonDisabled || bookingLoading}
+                className={`px-8 py-4 rounded-2xl text-sm font-black shadow-lg transition-all duration-200 ${
+                  isBookButtonDisabled
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                    : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20 hover:-translate-y-0.5"
+                }`}
+              >
+                {isExpired
+                  ? "Trip Expired"
+                  : isSoldOut
+                    ? "Sold Out"
+                    : "Book Now"}
+              </button>
+            ) : (
+              <Card className="text-red-600 font-bold">
+                Not Authorized for {session.user.role.toUpperCase()}
+              </Card>
+            )}
           </div>
         </div>
       </div>
