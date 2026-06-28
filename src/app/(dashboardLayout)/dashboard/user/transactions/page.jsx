@@ -1,35 +1,55 @@
 "use client";
 
-import { useState } from "react";
-import { FaHistory, FaDollarSign, FaSearch, FaDownload } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaHistory, FaSearch, FaDownload } from "react-icons/fa";
+import { useSession } from "@/lib/auth-client";
 
 export default function TransactionHistory() {
-  const [transactions, setTransactions] = useState([
-    {
-      _id: "TXN98327410",
-      amount: 2400,
-      ticketTitle: "Hanif Enterprise - Scania Multi-Axle (Dhaka ➔ Cox's Bazar)",
-      paymentDate: "2026-06-15T22:45:00",
-    },
-    {
-      _id: "TXN98327411",
-      amount: 1500,
-      ticketTitle: "Green Line Paribahan - Volvo Sleeper (Dhaka ➔ Sylhet)",
-      paymentDate: "2026-06-12T09:30:00",
-    },
-    {
-      _id: "TXN98327412",
-      amount: 3200,
-      ticketTitle: "Ena Transport - Hyundai Universe (Chittagong ➔ Dhaka)",
-      paymentDate: "2026-06-10T15:20:00",
-    },
-    {
-      _id: "TXN98327413",
-      amount: 850,
-      ticketTitle: "Shyamoli Paribahan - Hino 1J (Dhaka ➔ Rajshahi)",
-      paymentDate: "2026-06-05T11:10:00",
-    },
-  ]);
+  const { data: session, isPending } = useSession();
+  const [transactions, setTransactions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isPending && session?.user?.email) {
+      fetch(
+        `http://localhost:8080/api/user/transaction-history?email=${encodeURIComponent(session.user.email)}`,
+      )
+        .then((res) => res.json())
+        .then((resData) => {
+          if (resData.success) {
+            setTransactions(resData.data || []);
+          }
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error fetching transactions:", err);
+          setLoading(false);
+        });
+    } else if (!isPending) {
+      setLoading(false);
+    }
+  }, [isPending, session]);
+
+  const filteredTransactions = transactions.filter((txn) =>
+    txn._id.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  if (isPending || loading) {
+    return (
+      <div className="text-center py-12 font-bold text-slate-400">
+        Loading transaction history...
+      </div>
+    );
+  }
+
+  if (!session?.user?.email) {
+    return (
+      <div className="text-center py-12 font-bold text-rose-500">
+        Please login to view your transaction history.
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -62,12 +82,14 @@ export default function TransactionHistory() {
             </span>
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by Transaction ID..."
               className="w-full pl-9 pr-4 py-2 text-xs font-semibold bg-white border border-slate-200 rounded-xl focus:outline-hidden focus:border-[#6366F1] transition-all"
             />
           </div>
           <span className="text-xs font-bold text-slate-400">
-            Total Logs: {transactions.length}
+            Total Logs: {filteredTransactions.length}
           </span>
         </div>
 
@@ -82,42 +104,44 @@ export default function TransactionHistory() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 text-sm font-medium text-slate-600">
-              {transactions.map((txn) => (
+              {filteredTransactions.map((txn) => (
                 <tr
                   key={txn._id}
                   className="hover:bg-slate-50/40 transition-colors"
                 >
-                  {/* ১. Transaction ID */}
                   <td className="py-4 px-6 font-mono text-xs font-bold text-slate-800">
                     <span className="px-2 py-1 bg-slate-100 rounded-lg border border-slate-200/60">
                       {txn._id}
                     </span>
                   </td>
 
-                  {/* ২. Ticket Title */}
                   <td className="py-4 px-6 max-w-xs sm:max-w-sm truncate font-bold text-slate-700">
                     {txn.ticketTitle}
                   </td>
 
-                  {/* ৩. Amount */}
                   <td className="py-4 px-6 text-right font-black text-emerald-600">
                     <span className="inline-flex items-center gap-0.5">
-                      ৳{txn.amount.toLocaleString()}
+                      ৳{txn.totalPrice.toLocaleString()}
                     </span>
                   </td>
 
-                  {/* ৪. Payment Date */}
                   <td className="py-4 px-6 text-center text-xs text-slate-400 font-semibold">
-                    {new Date(txn.paymentDate).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                    <span className="mx-1.5 text-slate-200">|</span>
-                    {new Date(txn.paymentDate).toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {txn.paidAt ? (
+                      <>
+                        {new Date(txn.paidAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                        <span className="mx-1.5 text-slate-200">|</span>
+                        {new Date(txn.paidAt).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </>
+                    ) : (
+                      "N/A"
+                    )}
                   </td>
                 </tr>
               ))}
@@ -125,7 +149,7 @@ export default function TransactionHistory() {
           </table>
         </div>
 
-        {transactions.length === 0 && (
+        {filteredTransactions.length === 0 && (
           <div className="text-center py-12 text-slate-400 font-semibold">
             No transaction records found.
           </div>
