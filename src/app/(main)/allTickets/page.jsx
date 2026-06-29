@@ -23,14 +23,8 @@ export default function AllTicketsPage() {
   const [transportFilter, setTransportFilter] = useState("All");
   const [priceSort, setPriceSort] = useState("");
 
-<<<<<<< HEAD
   const [currentPage, setCurrentPage] = useState(1);
   const ticketsPerPage = 6;
-=======
-  // 🆕 পেজিনেশনের জন্য প্রয়োজনীয় স্টেট
-  const [currentPage, setCurrentPage] = useState(1);
-  const ticketsPerPage = 6; // প্রতি পেজে কয়টি টিকিট দেখাবেন (৬ থেকে ৯টি রিকোয়ারমেন্ট)
->>>>>>> bef88c115a9d233cbf9fb5d8ddd031a236a99db0
 
   useEffect(() => {
     fetch("http://localhost:8080/api/tickets", { cache: "no-store" })
@@ -65,17 +59,9 @@ export default function AllTicketsPage() {
       return 0;
     });
 
-<<<<<<< HEAD
   const indexOfLastTicket = currentPage * ticketsPerPage;
   const indexOfFirstTicket = indexOfLastTicket - ticketsPerPage;
 
-=======
-  // 🆕 পেজিনেশনের স্লাইস এবং পেজ সংখ্যা হিসাব করার লজিক
-  const indexOfLastTicket = currentPage * ticketsPerPage;
-  const indexOfFirstTicket = indexOfLastTicket - ticketsPerPage;
-
-  // বর্তমান পেজের জন্য ফিল্টার করা নির্দিষ্ট টিকিট
->>>>>>> bef88c115a9d233cbf9fb5d8ddd031a236a99db0
   const currentTickets = filteredAndSortedTickets.slice(
     indexOfFirstTicket,
     indexOfLastTicket,
