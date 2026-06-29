@@ -6,7 +6,7 @@
 
 ## 🚀 Live Links & Credentials
 
-- **Live Site URL:** `[Live link]`
+- **Live Site URL:** `[https://ticket-bari-client-weld.vercel.app]`
 - **Client Repository:** `[https://github.com/Haolader91/ticket-bari-client]`
 - **Server Repository:** `[https://github.com/Haolader91/ticket-bari-server]`
 
@@ -72,3 +72,19 @@ The core purpose of **TicketBari** is to streamline the traditional, fragmented 
 - **Security & Utilities:** JsonWebToken (JWT), dotenv, cors
 
 ---
+
+## submit
+
+Admin Email: admin@gamil.com
+Admin Password: 123456789
+
+Vendor Email: ventor2@gmail.com
+Vendor Password: 123456789
+
+Live Site Link : https://ticket-bari-client-weld.vercel.app
+
+Github Repository ( server ) : https://github.com/Haolader91/ticket-bari-server
+Github Repository ( client ) : https://github.com/Haolader91/ticket-bari-client
+
+User Email: user@gmail.com
+User Password: 123456789
