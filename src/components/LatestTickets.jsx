@@ -8,7 +8,6 @@ export default function LatestTickets() {
   const [latestTickets, setLatestTickets] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔄 ডাটাবেজ থেকে লেটেস্ট টিকিটগুলো লোড করা
   useEffect(() => {
     fetch("http://localhost:8080/api/latest-tickets")
       .then((res) => res.json())
@@ -38,7 +37,6 @@ export default function LatestTickets() {
 
   return (
     <div className="bg-white py-16 px-4 sm:px-6 lg:px-8 font-sans border-t border-slate-100">
-      {/* হেডিং সেকশন */}
       <div className="max-w-7xl mx-auto text-center mb-12">
         <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold mb-3">
           <FaClock size={12} className="animate-spin-slow" /> New Releases
@@ -52,7 +50,6 @@ export default function LatestTickets() {
         </p>
       </div>
 
-      {/* কার্ড গ্রিড লেআউট */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {latestTickets.map((ticket) => (
           <div
