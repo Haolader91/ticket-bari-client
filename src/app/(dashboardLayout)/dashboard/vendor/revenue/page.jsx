@@ -25,7 +25,7 @@ export default function RevenueOverview() {
   useEffect(() => {
     if (!isPending && session?.user?.email) {
       fetch(
-        `http://localhost:8080/api/vendor/revenue-overview?email=${encodeURIComponent(session.user.email)}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/vendor/revenue-overview?email=${encodeURIComponent(session.user.email)}`,
       )
         .then((res) => res.json())
         .then((resData) => {

@@ -27,7 +27,9 @@ export default function AllTicketsPage() {
   const ticketsPerPage = 6;
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/tickets", { cache: "no-store" })
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/tickets`, {
+      cache: "no-store",
+    })
       .then((res) => res.json())
       .then((resData) => {
         if (resData.success) {
@@ -37,7 +39,7 @@ export default function AllTicketsPage() {
       })
       .catch((err) => {
         console.error("Error fetching tickets:", err);
-        setLoading(false);
+        loading(false);
       });
   }, []);
 
@@ -111,7 +113,8 @@ export default function AllTicketsPage() {
               const validImageSrc =
                 ticket.image &&
                 (ticket.image.startsWith("https://images.unsplash.com") ||
-                  ticket.image.startsWith("https://images.pexels.com"))
+                  ticket.image.startsWith("https://images.pexels.com") ||
+                  ticket.image.startsWith("https://i.ibb.co"))
                   ? ticket.image
                   : "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=600";
 

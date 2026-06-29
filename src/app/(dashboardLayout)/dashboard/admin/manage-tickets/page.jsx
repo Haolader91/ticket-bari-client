@@ -8,7 +8,7 @@ export default function ManageTickets() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/admin/tickets")
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/tickets`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -31,7 +31,7 @@ export default function ManageTickets() {
 
     try {
       const res = await fetch(
-        `http://localhost:8080/api/admin/tickets/${id}/status`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/tickets/${id}/status`,
         {
           method: "POST",
           headers: {

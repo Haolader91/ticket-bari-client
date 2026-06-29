@@ -13,7 +13,7 @@ export default function TransactionHistory() {
   useEffect(() => {
     if (!isPending && session?.user?.email) {
       fetch(
-        `http://localhost:8080/api/user/transaction-history?email=${encodeURIComponent(session.user.email)}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/transaction-history?email=${encodeURIComponent(session.user.email)}`,
       )
         .then((res) => res.json())
         .then((resData) => {

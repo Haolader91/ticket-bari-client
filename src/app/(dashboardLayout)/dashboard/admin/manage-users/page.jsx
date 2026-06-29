@@ -15,7 +15,9 @@ export default function ManageUsers() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/users");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/users`,
+      );
       const data = await res.json();
       if (data.success) {
         setUsers(data.data);
@@ -33,11 +35,14 @@ export default function ManageUsers() {
 
   const handleRoleChange = async (id, newRole, name) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/users/${id}/role`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: newRole }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${id}/role`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: newRole }),
+        },
+      );
       const data = await res.json();
 
       if (data.success) {
@@ -51,9 +56,12 @@ export default function ManageUsers() {
 
   const handleMarkAsFraud = async (id, name) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/users/${id}/fraud`, {
-        method: "PATCH",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${id}/fraud`,
+        {
+          method: "PATCH",
+        },
+      );
       const data = await res.json();
 
       if (data.success) {

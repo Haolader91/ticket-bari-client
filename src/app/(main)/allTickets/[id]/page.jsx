@@ -71,7 +71,7 @@ export default function TicketDetailsPage() {
 
   useEffect(() => {
     if (id) {
-      fetch(`http://localhost:8080/api/tickets/${id}`)
+      fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/tickets/${id}`)
         .then((res) => res.json())
         .then((resData) => {
           if (resData.success) {
@@ -130,17 +130,20 @@ export default function TicketDetailsPage() {
     setBookingLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ticketId: ticket._id,
-          userEmail: session.user.email,
-          user: session.user.name || "Anonymous User",
-          bookingQuantity: qty,
-          totalPrice: ticket.price * qty,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/bookings`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ticketId: ticket._id,
+            userEmail: session.user.email,
+            user: session.user.name || "Anonymous User",
+            bookingQuantity: qty,
+            totalPrice: ticket.price * qty,
+          }),
+        },
+      );
 
       const resData = await response.json();
 

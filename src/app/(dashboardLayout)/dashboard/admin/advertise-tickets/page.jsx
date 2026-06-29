@@ -9,7 +9,7 @@ export default function AdvertiseTickets() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/admin/tickets")
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/tickets`)
       .then((res) => res.json())
       .then((resData) => {
         if (resData.success) {
@@ -43,11 +43,14 @@ export default function AdvertiseTickets() {
       return;
     }
 
-    fetch(`http://localhost:8080/api/admin/tickets/${id}/advertise`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isAdvertised: nextStatus }),
-    })
+    fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/tickets/${id}/advertise`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isAdvertised: nextStatus }),
+      },
+    )
       .then((res) => res.json())
       .then((resData) => {
         if (resData.success) {

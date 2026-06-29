@@ -44,40 +44,26 @@ export default function Footer() {
 
         <div>
           <h3 className="text-slate-900 font-semibold text-sm uppercase tracking-wider mb-4">
-            Discover Events
+            Quick Link
           </h3>
 
           <ul className="space-y-2 text-gray-500 text-sm">
             <li>
-              <Link
-                href="/events?category=Music"
-                className="hover:text-[#6366F1] transition-colors"
-              >
-                Music Festivals
+              <Link href="/" className="hover:text-[#6366F1] transition-colors">
+                Home
               </Link>
             </li>
             <li>
               <Link
-                href="/events?category=Tech"
+                href="/login"
                 className="hover:text-[#6366F1] transition-colors"
               >
-                Tech Conferences
+                All Ticket
               </Link>
             </li>
             <li>
-              <Link
-                href="/events?category=Sports"
-                className="hover:text-[#6366F1] transition-colors"
-              >
-                Sports Matches
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/events?category=Arts"
-                className="hover:text-[#6366F1] transition-colors"
-              >
-                Art Exhibitions
+              <Link href="/" className="hover:text-[#6366F1] transition-colors">
+                Dashboard
               </Link>
             </li>
           </ul>

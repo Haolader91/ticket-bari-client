@@ -9,7 +9,7 @@ export default function LatestTickets() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/latest-tickets")
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/latest-tickets`)
       .then((res) => res.json())
       .then((resData) => {
         if (resData.success) {

@@ -60,7 +60,7 @@ export default function MyBookedTickets() {
   const fetchUserBookings = useCallback((email) => {
     if (!email) return;
     fetch(
-      `http://localhost:8080/api/user/bookings?email=${encodeURIComponent(email)}`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/bookings?email=${encodeURIComponent(email)}`,
     )
       .then((res) => res.json())
       .then((resData) => {
@@ -86,9 +86,12 @@ export default function MyBookedTickets() {
     if (paymentStatus === "success" && bookingId && session?.user?.email) {
       window.history.replaceState({}, document.title, window.location.pathname);
 
-      fetch(`http://localhost:8080/api/bookings/${bookingId}/pay-success`, {
-        method: "PATCH",
-      })
+      fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/bookings/${bookingId}/pay-success`,
+        {
+          method: "PATCH",
+        },
+      )
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
@@ -115,7 +118,7 @@ export default function MyBookedTickets() {
 
     try {
       const response = await fetch(
-        "http://localhost:8080/api/create-checkout-session",
+        ` ${process.env.NEXT_PUBLIC_SERVER_URL}/api/create-checkout-session`,
 
         {
           method: "POST",

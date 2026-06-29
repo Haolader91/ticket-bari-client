@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { FaListUl, FaTrashAlt, FaEdit, FaTimes } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useSession } from "@/lib/auth-client";
+import { imageUpload } from "@/lib/imgUpload";
 
 const AVAILABLE_PERKS = ["AC", "Wifi", "Water", "Blanket", "Charger", "Snacks"];
 
@@ -22,7 +23,9 @@ export default function MyAddedTickets() {
     if (!isPending && session?.user?.email) {
       const vendorEmail = session.user.email;
 
-      fetch(`http://localhost:8080/api/vendor/tickets?email=${vendorEmail}`)
+      fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/vendor/tickets?email=${vendorEmail}`,
+      )
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
@@ -42,9 +45,12 @@ export default function MyAddedTickets() {
     if (!window.confirm("Are you sure you want to delete this ticket?")) return;
 
     try {
-      const res = await fetch(`http://localhost:8080/api/tickets/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/tickets/${id}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       const data = await res.json();
 
@@ -79,21 +85,33 @@ export default function MyAddedTickets() {
     setUpdateLoading(true);
 
     const form = e.target;
-    const updatedTicketData = {
-      title: form.title.value,
-      from: form.from.value,
-      to: form.to.value,
-      price: form.price.value,
-      quantity: form.quantity.value,
-      departureDateTime: form.departureDateTime.value,
-      image: form.image.value,
-      transportType: selectedTransportType,
-      perks: selectedPerks,
-    };
+
+    const imageFile = form.image.files[0];
+    let finalImageUrl = selectedTicket.image;
 
     try {
+      if (imageFile) {
+        toast.loading("Uploading new image to ImgBB...", {
+          id: "imgUpdateLoading",
+        });
+        finalImageUrl = await imageUpload(imageFile);
+        toast.dismiss("imgUpdateLoading");
+      }
+
+      const updatedTicketData = {
+        title: form.title.value,
+        from: form.from.value,
+        to: form.to.value,
+        price: Number(form.price.value),
+        quantity: Number(form.quantity.value),
+        departureDateTime: form.departureDateTime.value,
+        image: finalImageUrl,
+        transportType: selectedTransportType,
+        perks: selectedPerks,
+      };
+
       const res = await fetch(
-        `http://localhost:8080/api/tickets/${selectedTicket._id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/tickets/${selectedTicket._id}`,
         {
           method: "PUT",
           headers: {
@@ -120,6 +138,7 @@ export default function MyAddedTickets() {
         toast.error(data.error || "Failed to update ticket");
       }
     } catch (error) {
+      toast.dismiss("imgUpdateLoading");
       toast.error("Server connection error during update.");
     } finally {
       setUpdateLoading(false);
@@ -346,7 +365,6 @@ export default function MyAddedTickets() {
                 </div>
               </div>
 
-              {/* Perks Checklist - 🆕 */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
                   Select Perks / Facilities
@@ -371,15 +389,15 @@ export default function MyAddedTickets() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                  Image URL
+                  Update Vehicle Image (Optional)
                 </label>
                 <input
-                  type="url"
+                  type="file"
                   name="image"
-                  defaultValue={selectedTicket.image}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:border-[#6366F1]"
-                  required
+                  accept="image/*"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 focus:outline-hidden cursor-pointer"
                 />
+                <p className="text-[10px] text-slate-400 mt-1"></p>
               </div>
 
               <div className="flex gap-3 pt-2">

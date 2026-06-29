@@ -9,7 +9,7 @@ export default function FeaturedTickets() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/featured-tickets")
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/featured-tickets`)
       .then((res) => res.json())
       .then((resData) => {
         if (resData.success) {

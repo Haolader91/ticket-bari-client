@@ -15,7 +15,7 @@ export default function ManageVendorTickets() {
 
     // ভেন্ডরের ইমেইল প্যারামিটার হিসেবে পাঠানো হচ্ছে যাতে ব্যাকএন্ড শুধু এই ভেন্ডরের টিকিট বুকিংগুলো দেয়
     fetch(
-      `http://localhost:8080/api/vendor/bookings?email=${encodeURIComponent(session.user.email)}`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/vendor/bookings?email=${encodeURIComponent(session.user.email)}`,
     )
       .then((res) => {
         if (!res.ok) throw new Error("Network response was not ok");
@@ -51,7 +51,7 @@ export default function ManageVendorTickets() {
     try {
       // ইউজার বুকিং আইডির সাপেক্ষে ব্যাকএন্ডে স্ট্যাটাস আপডেটের এপিআই কল
       const res = await fetch(
-        `http://localhost:8080/api/vendor/bookings/${bookingId}/status`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/vendor/bookings/${bookingId}/status`,
         {
           method: "POST",
           headers: {

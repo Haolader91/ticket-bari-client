@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useSession } from "@/lib/auth-client";
+import { imageUpload } from "@/lib/imgUpload";
 
 export default function AddTicket() {
   const { data: session, isPending } = useSession();
@@ -47,29 +48,47 @@ export default function AddTicket() {
 
     const form = e.target;
     const userEmail = session.user.email;
+    const userName = session.user.name || "Unknown Vendor";
 
-    // new added
-    const ticketData = {
-      title: form.title.value,
-      from: form.from.value,
-      to: form.to.value,
-      price: Number(form.price.value),
-      quantity: Number(form.quantity.value),
-      departureDateTime: form.departureDateTime.value,
-      image: form.image.value,
-      vendorEmail: userEmail,
-      transportType: transportType,
-      perks: selectedPerks,
-    };
+    const imageFile = form.image.files[0];
+
+    if (!imageFile) {
+      toast.error("Please select a vehicle image!");
+      setLoading(false);
+      return;
+    }
 
     try {
-      const res = await fetch("http://localhost:8080/api/tickets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      toast.loading("Uploading image to ImgBB...", { id: "imgLoading" });
+      const uploadedImageUrl = await imageUpload(imageFile);
+      toast.dismiss("imgLoading");
+
+      const ticketData = {
+        title: form.title.value,
+        from: form.from.value,
+        to: form.to.value,
+        price: Number(form.price.value),
+        quantity: Number(form.quantity.value),
+        departureDateTime: form.departureDateTime.value,
+        image: uploadedImageUrl,
+        vendorEmail: userEmail,
+        vendorName: userName,
+        transportType: transportType,
+        perks: selectedPerks,
+        status: "pending",
+        isAdvertised: false,
+      };
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/tickets`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(ticketData),
         },
-        body: JSON.stringify(ticketData),
-      });
+      );
 
       const data = await res.json();
 
@@ -82,9 +101,11 @@ export default function AddTicket() {
         toast.error(data.error || "Failed to add ticket");
       }
     } catch (error) {
-      toast.error("Server connection lost! Please check your backend.");
+      toast.dismiss("imgLoading");
+      toast.error(
+        error.message || "Server connection lost! Please check your backend.",
+      );
     } finally {
-      // text - slate - 500;
       setLoading(false);
     }
   };
@@ -225,13 +246,13 @@ export default function AddTicket() {
 
         <div>
           <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">
-            Vehicle Image URL
+            Vehicle Image
           </label>
           <input
-            type="url"
+            type="file"
             name="image"
-            placeholder="https://example.com/bus.jpg"
-            className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:border-[#6366F1]"
+            accept="image/*"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 focus:outline-hidden cursor-pointer"
             required
           />
         </div>
