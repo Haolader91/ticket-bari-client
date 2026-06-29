@@ -13,6 +13,18 @@ export default function AddTicket() {
   const { data: session, isPending } = useSession();
   const [loading, setLoading] = useState(false);
 
+  // new added
+  const [transportType, setTransportType] = useState("Bus");
+  const [selectedPerks, setSelectedPerks] = useState([]);
+
+  const handlePerkChange = (perk) => {
+    if (selectedPerks.includes(perk)) {
+      setSelectedPerks(selectedPerks.filter((p) => p !== perk));
+    } else {
+      setSelectedPerks([...selectedPerks, perk]);
+    }
+  };
+
   if (isPending) {
     return (
       <div className="p-8 text-center font-bold text-slate-500">
@@ -36,15 +48,18 @@ export default function AddTicket() {
     const form = e.target;
     const userEmail = session.user.email;
 
+    // new added
     const ticketData = {
       title: form.title.value,
       from: form.from.value,
       to: form.to.value,
-      price: form.price.value,
-      quantity: form.quantity.value,
+      price: Number(form.price.value),
+      quantity: Number(form.quantity.value),
       departureDateTime: form.departureDateTime.value,
       image: form.image.value,
       vendorEmail: userEmail,
+      transportType: transportType,
+      perks: selectedPerks,
     };
 
     try {
@@ -57,17 +72,19 @@ export default function AddTicket() {
       });
 
       const data = await res.json();
-      console.log(data);
 
       if (data.success) {
         toast.success("Ticket published successfully!");
         form.reset();
+        setSelectedPerks([]);
+        setTransportType("Bus");
       } else {
         toast.error(data.error || "Failed to add ticket");
       }
     } catch (error) {
       toast.error("Server connection lost! Please check your backend.");
     } finally {
+      // text - slate - 500;
       setLoading(false);
     }
   };
@@ -79,9 +96,7 @@ export default function AddTicket() {
           <FaPlusCircle size={22} />
         </div>
         <div>
-          <h1 className="text-xl font-black text-slate-800">
-            Add New Bus Ticket
-          </h1>
+          <h1 className="text-xl font-black text-slate-800">Add New Ticket</h1>
           <p className="text-xs text-slate-400 font-medium">
             Publish a new available route for passengers
           </p>
@@ -91,7 +106,7 @@ export default function AddTicket() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">
-            Ticket / Bus Title
+            Ticket / Route Title
           </label>
           <input
             type="text"
@@ -127,6 +142,22 @@ export default function AddTicket() {
               required
             />
           </div>
+        </div>
+
+        {/* new added */}
+        <div>
+          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">
+            Transport Type
+          </label>
+          <select
+            value={transportType}
+            onChange={(e) => setTransportType(e.target.value)}
+            className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm bg-white focus:outline-hidden focus:border-[#6366F1] font-medium text-slate-700 cursor-pointer"
+          >
+            <option value="Bus">Bus</option>
+            <option value="Train">Train</option>
+            <option value="Air">Air / Flight</option>
+          </select>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -167,9 +198,34 @@ export default function AddTicket() {
           </div>
         </div>
 
+        {/* new added */}
+        <div>
+          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+            Perks / Available Facilities
+          </label>
+          <div className="grid grid-cols-2 gap-3 bg-slate-50 border border-slate-100 rounded-2xl p-4">
+            {["AC", "WiFi", "Food", "TV", "Charging Port", "Breakfast"].map(
+              (perk) => (
+                <label
+                  key={perk}
+                  className="flex items-center gap-2.5 text-sm font-semibold text-slate-600 cursor-pointer select-none"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedPerks.includes(perk)}
+                    onChange={() => handlePerkChange(perk)}
+                    className="w-4 h-4 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <span>{perk}</span>
+                </label>
+              ),
+            )}
+          </div>
+        </div>
+
         <div>
           <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">
-            Bus Image URL
+            Vehicle Image URL
           </label>
           <input
             type="url"

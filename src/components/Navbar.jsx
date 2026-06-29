@@ -141,7 +141,7 @@ const Navbar = () => {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-3 w-52 bg-white border border-slate-100 rounded-2xl shadow-xl p-2">
                   <Link
-                    href="/dashboard/profile"
+                    href="/dashboard"
                     onClick={() => setIsDropdownOpen(false)}
                     className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                       pathname.startsWith("/dashboard/profile")

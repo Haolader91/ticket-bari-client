@@ -7,6 +7,7 @@ import {
   FaCalendarAlt,
   FaClock,
   FaArrowLeft,
+  FaCheckCircle,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useSession } from "@/lib/auth-client";
@@ -173,8 +174,8 @@ export default function TicketDetailsPage() {
         <div className="p-6 sm:p-8">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <DetailsCountdown departureDate={ticket.departureDateTime} />
-            <span className="bg-slate-100 text-slate-800 text-xs font-extrabold px-3 py-1.5 rounded-xl uppercase">
-              {ticket.transportType || "AC/Non-AC"}
+            <span className="bg-indigo-50 text-indigo-700 text-xs font-extrabold px-3 py-1.5 rounded-xl uppercase tracking-wide border border-indigo-100">
+              {ticket.transportType || "Bus"}
             </span>
           </div>
 
@@ -215,6 +216,28 @@ export default function TicketDetailsPage() {
             </div>
           </div>
 
+          {ticket.perks && ticket.perks.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">
+                Available Amenities & Perks
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {ticket.perks.map((perk, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2.5 px-4 py-3 bg-slate-50/70 border border-slate-100 rounded-xl text-sm font-semibold text-slate-700"
+                  >
+                    <FaCheckCircle
+                      className="text-emerald-500 shrink-0"
+                      size={16}
+                    />
+                    <span>{perk}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase">
@@ -228,7 +251,7 @@ export default function TicketDetailsPage() {
               </p>
             </div>
 
-            {session.user.role == "user" ? (
+            {session?.user?.role === "user" ? (
               <button
                 onClick={() => setIsModalOpen(true)}
                 disabled={isBookButtonDisabled || bookingLoading}
@@ -245,8 +268,9 @@ export default function TicketDetailsPage() {
                     : "Book Now"}
               </button>
             ) : (
-              <Card className="text-red-600 font-bold">
-                Not Authorized for {session.user.role.toUpperCase()}
+              <Card className="text-red-600 font-bold p-3 bg-red-50 border-red-100">
+                Not Authorized for{" "}
+                {session?.user?.role?.toUpperCase() || "GUEST"}
               </Card>
             )}
           </div>
