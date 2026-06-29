@@ -4,6 +4,8 @@ import { FaListUl, FaTrashAlt, FaEdit, FaTimes } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useSession } from "@/lib/auth-client";
 
+const AVAILABLE_PERKS = ["AC", "Wifi", "Water", "Blanket", "Charger", "Snacks"];
+
 export default function MyAddedTickets() {
   const { data: session, isPending } = useSession();
   const [tickets, setTickets] = useState([]);
@@ -12,6 +14,9 @@ export default function MyAddedTickets() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [updateLoading, setUpdateLoading] = useState(false);
+
+  const [selectedTransportType, setSelectedTransportType] = useState("Bus");
+  const [selectedPerks, setSelectedPerks] = useState([]);
 
   useEffect(() => {
     if (!isPending && session?.user?.email) {
@@ -56,7 +61,17 @@ export default function MyAddedTickets() {
 
   const openEditModal = (ticket) => {
     setSelectedTicket(ticket);
+    setSelectedTransportType(ticket.transportType || "Bus");
+    setSelectedPerks(ticket.perks || []);
     setIsModalOpen(true);
+  };
+
+  const handlePerkChange = (perk) => {
+    if (selectedPerks.includes(perk)) {
+      setSelectedPerks(selectedPerks.filter((p) => p !== perk));
+    } else {
+      setSelectedPerks([...selectedPerks, perk]);
+    }
   };
 
   const handleUpdateSubmit = async (e) => {
@@ -72,6 +87,8 @@ export default function MyAddedTickets() {
       quantity: form.quantity.value,
       departureDateTime: form.departureDateTime.value,
       image: form.image.value,
+      transportType: selectedTransportType,
+      perks: selectedPerks,
     };
 
     try {
@@ -153,12 +170,31 @@ export default function MyAddedTickets() {
               className="bg-white p-5 rounded-2xl border border-slate-100 shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
             >
               <div>
-                <h3 className="font-bold text-slate-800 text-base">
-                  {t.title}
-                </h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-slate-800 text-base">
+                    {t.title}
+                  </h3>
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md uppercase">
+                    {t.transportType || "Bus"}
+                  </span>
+                </div>
                 <p className="text-xs font-semibold text-slate-500 mt-1">
                   {t.from} ➔ {t.to}
                 </p>
+
+                {t.perks && t.perks.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {t.perks.map((perk, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-indigo-50 text-indigo-600 text-[9px] font-medium px-1.5 py-0.5 rounded-sm"
+                      >
+                        • {perk}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 <div className="flex flex-wrap gap-4 mt-2 text-xs font-medium text-slate-400">
                   <span>
                     Seats:{" "}
@@ -179,7 +215,8 @@ export default function MyAddedTickets() {
                   </span>
                 </div>
               </div>
-              <div className="flex gap-2">
+
+              <div className="flex gap-2 w-fit sm:self-center">
                 <button
                   onClick={() => openEditModal(t)}
                   className="p-2.5 bg-slate-50 text-slate-600 rounded-xl border border-slate-200/60 hover:bg-slate-100 transition-all"
@@ -216,7 +253,23 @@ export default function MyAddedTickets() {
             <form onSubmit={handleUpdateSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                  Bus Title
+                  Transport Type
+                </label>
+                <select
+                  value={selectedTransportType}
+                  onChange={(e) => setSelectedTransportType(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:border-[#6366F1] bg-white"
+                >
+                  <option value="Bus">Bus</option>
+                  <option value="Train">Train</option>
+                  <option value="Launch">Launch</option>
+                  <option value="Air">Air/Plane</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
+                  Ticket / Title
                 </label>
                 <input
                   type="text"
@@ -269,7 +322,7 @@ export default function MyAddedTickets() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                    Seats
+                    Available Seats
                   </label>
                   <input
                     type="number"
@@ -281,7 +334,7 @@ export default function MyAddedTickets() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                    Time
+                    Departure Time
                   </label>
                   <input
                     type="datetime-local"
@@ -293,9 +346,32 @@ export default function MyAddedTickets() {
                 </div>
               </div>
 
+              {/* Perks Checklist - 🆕 */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                  Select Perks / Facilities
+                </label>
+                <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  {AVAILABLE_PERKS.map((perk) => (
+                    <label
+                      key={perk}
+                      className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer select-none"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPerks.includes(perk)}
+                        onChange={() => handlePerkChange(perk)}
+                        className="rounded border-slate-300 text-[#6366F1] focus:ring-[#6366F1] h-3.5 w-3.5"
+                      />
+                      {perk}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                  Bus Image URL
+                  Image URL
                 </label>
                 <input
                   type="url"
