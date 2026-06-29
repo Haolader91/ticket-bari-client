@@ -35,7 +35,7 @@ const Navbar = () => {
       toast.success("Logged out successfully! 👋");
       setIsDropdownOpen(false);
       setIsOpen(false);
-      router.push("/login");
+      router.push("/");
     } catch (error) {
       toast.error("Failed to log out. Try again.");
     }

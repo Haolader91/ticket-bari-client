@@ -86,6 +86,13 @@ export default function TicketDetailsPage() {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (!isPending && !session) {
+      toast.error("Please login to view ticket details!");
+      router.push("/login");
+    }
+  }, [session, isPending, router]);
+
   if (isPending || loading) {
     return (
       <div className="text-center py-12 font-bold text-slate-400">

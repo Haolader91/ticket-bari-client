@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { signIn } from "@/lib/auth-client";
+import { authClient, signIn } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -12,6 +12,7 @@ import {
   FaEye,
   FaEyeSlash,
 } from "react-icons/fa";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -53,7 +54,11 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
+  const handleGoogleSignIn = async () => {
+    const data = await authClient.signIn.social({
+      provider: "google",
+    });
+  };
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-12 bg-slate-50 font-sans selection:bg-[#6366F1]/20">
       <div className="w-full max-w-md border border-slate-100 bg-white shadow-xl shadow-indigo-500/5 p-8 mx-auto rounded-3xl">
@@ -161,6 +166,24 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          className="w-full flex mt-5 justify-center items-center gap-3 bg-white hover:bg-slate-50 text-slate-700 font-bold h-12 rounded-xl text-sm border border-slate-200 transition-all shadow-sm active:scale-[0.99]"
+        >
+          <Image
+            src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg"
+            alt="Google Logo"
+            width={20}
+            height={20}
+            className="object-contain"
+            unoptimized
+          />
+          <span className="text-slate-800 font-semibold tracking-wide">
+            Continue with Google
+          </span>
+        </button>
 
         {/* Redirection Link */}
         <p className="text-center text-sm text-slate-500 mt-6 font-medium">
